@@ -2,6 +2,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import pathlib
 import time
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 def test_sample_page():
 
@@ -12,13 +14,19 @@ def test_sample_page():
     generate_button = driver.find_element(by=By.NAME, value = "generate")
     generate_button.click()
 
-    time.sleep(3)
-
+    code_element = WebDriverWait(driver,10).until(lambda driver: driver.find_element(By.ID, "my-value").text != ""
+)
+    
     code = driver.find_element(by=By.ID, value = "my-value")
     text = code.text
 
     text_box = driver.find_element(by=By.ID, value = "input")
     text_box.clear()
+
+    while text_box.get_attribute("value") != "":
+        text_box.clear()
+        time.sleep(0.1) 
+
     text_box.send_keys(text)
 
     driver.find_element(by=By.NAME, value = "button").click()
@@ -26,12 +34,8 @@ def test_sample_page():
     alert = driver.switch_to.alert
     alert.accept()
 
-    time.sleep(3)
+    time.sleep(5)
 
     result = driver.find_element(by=By.ID, value = "result").text
 
-    assert result == f"It workls! {text}!"
-
-    driver.quit()
-
-test_sample_page()
+    assert result == f"It works! {text}!"
